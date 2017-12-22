@@ -1,0 +1,61 @@
+version: 2
+jobs:
+  debian7-openjdk:
+    docker:
+      - image: debian:7
+    environment:
+      CUSTOM_IMAGE_TYPE: hortonworks
+    steps:
+      - checkout
+      - run: |
+          apt-get update
+          apt-get install -y --no-install-recommends sudo
+      - run: |
+          cp -r repos/ /tmp/repos/
+          cp -r scripts/ /tmp/scripts/
+          cp -r saltstack/ /tmp/saltstack/
+      - run: scripts/salt-install.sh debian salt-repo-2016.11-5.debian7.list
+      - run: scripts/salt-setup.sh
+
+  centos7-openjdk:
+    docker:
+      - image: centos:7
+    environment:
+      CUSTOM_IMAGE_TYPE: hortonworks
+    steps:
+      - checkout
+      - run: yum install -y initscripts openssh-server sudo
+      - run: |
+          cp -r repos/ /tmp/repos/
+          cp -r scripts/ /tmp/scripts/
+          cp -r saltstack/ /tmp/saltstack/
+      - run: scripts/salt-install.sh centos salt-repo-2017.7-1.el.repo
+      - run: scripts/salt-setup.sh
+#     - run: salt-call --local grains.items
+
+#  centos7-oraclejdk:
+#    docker:
+#      - image: centos:7
+#    environment:
+#      OPTIONAL_STATES: oracle-java
+#      CUSTOM_IMAGE_TYPE: hortonworks
+#      ORACLE_JDK8_URL_RPM: http://download.oracle.com/otn-pub/java/jdk/8u151-b12/e758a0de34e24606bca991d704f6dcbf/jdk-8u151-linux-x64.rpm
+#    steps:
+#      - checkout
+#      - run: |
+#          yum install -y \
+#            sudo
+#      - run: |
+#          cp -r repos/ /tmp/repos/
+#          cp -r scripts/ /tmp/scripts/
+#          cp -r saltstack/ /tmp/saltstack/
+#      - run: scripts/salt-install.sh centos salt-repo-2017.7-1.el.repo
+#      - run: scripts/salt-setup.sh
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      - debian7-openjdk
+      - centos7-openjdk
+#     - centos7-oraclejdk

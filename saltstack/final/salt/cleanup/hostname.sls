@@ -1,10 +1,9 @@
-{% set subtype = grains['virtual_subtype'] |default('', true) %}
-{% if subtype != 'Docker' %}
+{% if not pillar['docker'] %}
 /etc/hostname:
   file.absent
 {% endif %}
 
-{% if grains['os_family'] == 'RedHat' and subtype != 'Docker' %}
+{% if grains['os_family'] == 'RedHat' and not pillar['docker'] %}
 hostname_remove:
   file.line:
     - name: /etc/sysconfig/network
